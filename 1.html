@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Поездка в гродно</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            color: #fff;
+        }
+        
+        .main-content {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .player-section {
+            flex: 3;
+            min-width: 300px;
+        }
+        
+        .catalog-section {
+            flex: 2;
+            min-width: 250px;
+            background: #2c3e50;
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .video-container {
+            width: 100%;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            margin-bottom: 20px;
+        }
+        
+        #videoPlayer {
+            width: 100%;
+            display: block;
+            max-height: 400px;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .play-btn {
+            background: #2ecc71;
+        }
+        
+        .play-btn:hover {
+            background: #27ae60;
+        }
+        
+        .next-btn {
+            background: #e74c3c;
+        }
+        
+        .next-btn:hover {
+            background: #c0392b;
+        }
+        
+        .current-video {
+            background: #34495e;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        
+        .catalog-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #3498db;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+        
+        .video-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .video-item {
+            background: #34495e;
+            padding: 12px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .video-item:hover {
+            background: #3d566e;
+            transform: translateX(5px);
+        }
+        
+        .video-item.active {
+            background: #2c3e50;
+            border-left: 4px solid #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+        
+        .video-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+        
+        .video-path {
+            font-size: 12px;
+            color: #bdc3c7;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .instructions {
+            background: #2c3e50;
+            padding: 20px;
+            border-radius: 8px;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+        
+        code {
+            background: #1a1a1a;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #e74c3c;
+        }
+        
+        /* Стили для полосы прокрутки в каталоге */
+        .catalog-section::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .catalog-section::-webkit-scrollbar-track {
+            background: #34495e;
+            border-radius: 4px;
+        }
+        
+        .catalog-section::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 4px;
+        }
+        
+        .catalog-section::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .catalog-section {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Поездка в Гродно</h1>
+        
+        <div class="main-content">
+            <div class="player-section">
+                <div class="current-video">
+                    <p><strong>Сейчас играет:</strong> <span id="currentVideoName">Загрузка...</span></p>
+                </div>
+                
+                <div class="video-container">
+                    <video id="videoPlayer" controls>
+                        Ваш браузер не поддерживает видео
+                    </video>
+                </div>
+                
+                <div class="controls">
+                    <button id="playPauseBtn" class="play-btn">Воспроизвести</button>
+                    <button id="stopBtn"> Остановить</button>
+                    <button id="nextBtn" class="next-btn"> Следующее</button>
+                </div>
+            </div>
+            
+            <div class="catalog-section">
+                <div class="catalog-title"> Каталог видео</div>
+                <div class="video-list" id="videoCatalog">
+                    <!-- Видео будут добавляться скриптом -->
+                </div>
+            </div>
+        </div>
+        
+
+    <script>
+        // ╔══════════════════════════════════════════════════════════════╗
+        // ║  ЗДЕСЬ МЕНЯЙТЕ ДАННЫЕ ВИДЕО                                ║
+        // ╚══════════════════════════════════════════════════════════════╝
+        const videoCatalogData = [
+            {
+                id: 1,
+                title: "Часть1",
+                path: ""
+            },
+            {
+                id: 2,
+                title: "Часть2",
+                path: ""
+            },
+            {
+                id: 3,
+                title: "Часть3",
+                path: ""
+            },
+            {
+                id: 4,
+                title: "Часть4",
+                path: ""
+            },
+            {
+                id: 5,
+                title: "Часть5",
+                path: ""
+            },
+            {
+                id: 6,
+                title: "Часть6",
+                path: ""
+            }
+        ];
+        // ╔══════════════════════════════════════════════════════════════╗
+        // ║  ВЫШЕ ДОБАВЬТЕ СВОИ ВИДЕОФАЙЛЫ                             ║
+        // ╚══════════════════════════════════════════════════════════════╝
+        
+        let currentVideoIndex = 0;
+        const videoPlayer = document.getElementById('videoPlayer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentVideoName = document.getElementById('currentVideoName');
+        const videoCatalog = document.getElementById('videoCatalog');
+        
+        // Загружаем каталог видео
+        function loadVideoCatalog() {
+            videoCatalog.innerHTML = '';
+            
+            videoCatalogData.forEach((video, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                if (index === currentVideoIndex) {
+                    videoItem.classList.add('active');
+                }
+                
+                videoItem.innerHTML = `
+                    <div class="video-title">${video.title}</div>
+                    <div class="video-path">${video.path}</div>
+                `;
+                
+                videoItem.addEventListener('click', () => {
+                    // Убираем активный класс у всех
+                    document.querySelectorAll('.video-item').forEach(item => {
+                        item.classList.remove('active');
+                    });
+                    // Добавляем активный класс текущему
+                    videoItem.classList.add('active');
+                    
+                    // Загружаем выбранное видео
+                    loadVideo(index);
+                    videoPlayer.play();
+                    updateButtonText();
+                });
+                
+                videoCatalog.appendChild(videoItem);
+            });
+        }
+        
+        function loadVideo(index) {
+            if (index >= 0 && index < videoCatalogData.length) {
+                currentVideoIndex = index;
+                const video = videoCatalogData[currentVideoIndex];
+                videoPlayer.src = video.path;
+                currentVideoName.textContent = video.title;
+                updateButtonText();
+                
+                // Обновляем активный элемент в каталоге
+                document.querySelectorAll('.video-item').forEach((item, i) => {
+                    if (i === currentVideoIndex) {
+                        item.classList.add('active');
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+            }
+        }
+        
+        function updateButtonText() {
+            if (videoPlayer.paused) {
+                playPauseBtn.innerHTML = '▶️ Воспроизвести';
+            } else {
+                playPauseBtn.innerHTML = '⏸️ Пауза';
+            }
+        }
+        
+        function playPauseVideo() {
+            if (videoPlayer.paused) {
+                videoPlayer.play();
+            } else {
+                videoPlayer.pause();
+            }
+            updateButtonText();
+        }
+        
+        function stopVideo() {
+            videoPlayer.pause();
+            videoPlayer.currentTime = 0;
+            updateButtonText();
+        }
+        
+        function nextVideo() {
+            let nextIndex = currentVideoIndex + 1;
+            if (nextIndex >= videoCatalogData.length) {
+                nextIndex = 0; // Вернуться к первому видео
+            }
+            loadVideo(nextIndex);
+            videoPlayer.play();
+            updateButtonText();
+        }
+        
+        // События для кнопок
+        playPauseBtn.addEventListener('click', playPauseVideo);
+        stopBtn.addEventListener('click', stopVideo);
+        nextBtn.addEventListener('click', nextVideo);
+        
+        // Автообновление кнопки
+        videoPlayer.addEventListener('play', updateButtonText);
+        videoPlayer.addEventListener('pause', updateButtonText);
+        
+        // Инициализация
+        loadVideoCatalog();
+        loadVideo(0);
+    </script>
+</body>
+</html>
